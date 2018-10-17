@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import './App.css';
 import styled from 'styled-components';
 import ReactPlayer from 'react-player'
 
@@ -16,8 +15,8 @@ const FlexContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
   flex-direction: column;
+  padding: 20px;
   @media screen and (min-width: 1100px){
     flex-direction: row-reverse;
     max-width: 1200px;
@@ -28,8 +27,8 @@ const FlexContainer2 = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
   flex-direction: column-reverse;
+  padding: 20px;
   @media screen and (min-width: 1100px){
     flex-direction: row-reverse;
     max-width: 1200px;
@@ -49,6 +48,7 @@ const Text = styled.div`
   text-align: left;
   max-width: 550px;
   justify-content: center;
+  padding: 20px;
   @media screen and (min-width: 505px) {
     max-width: 1010px;
     min-width: 505px;
@@ -62,15 +62,12 @@ const Gradient = styled.div`
   background: linear-gradient(rgba(34,34,34,1) 0%, rgba(60,60,60,1) 50%, rgba(212,212,212,1) 100%);
   color: white;
 `
-class Slider extends Component {
+class Carousel extends Component {
   constructor (props) {
     super(props);
     this.state = {
       currentIndex: 0,
-      translateVal: 1,
-      images: ["https://i.vimeocdn.com/video/595198868_505x160.jpg",
-      "https://i.vimeocdn.com/video/589972810_530x315.jpg",
-      "https://i.vimeocdn.com/video/590587169_530x315.jpg"],
+      move: 1,
       videos: ["https://vimeo.com/185441790", "https://vimeo.com/129902448", "https://vimeo.com/181725879"]
     };
   }
@@ -78,50 +75,41 @@ class Slider extends Component {
     if (this.state.currentIndex === 0) return;
     this.setState(prevState => ({
       currentIndex: prevState.currentIndex - 1,
-      translateVal: prevState.translateVal + this.slideWidth()
+      move: prevState.move + 800
     }))
   }
   nextSlide = () => {
     if(this.state.currentIndex === this.state.videos.length - 1) {
       return this.setState({
         currentIndex: 0,
-        translateVal: 0
+        move: 0
       })
     }
     this.setState(prevState => ({
       currentIndex: prevState.currentIndex + 1,
-      translateVal: prevState.translateVal + -(this.slideWidth())
+      move: prevState.move + (-1)*(800)
     }));
-  }
-  slideWidth = () => {
-     return document.querySelector('.slide').clientWidth
   }
   render () {
     return (
-      <Carousel>
-        <SliderWrap
-          style={{
-            transform: `translateX(${this.state.translateVal}px)`,
+      <Slider>
+        <Container style={{
+            transform: `translateX(${this.state.move}px)`,
             transition: 'transform ease-out 0.45s'
-          }}>
-            {
-              this.state.videos.map((video, i) => (
-                <Slide key={i} video= {video}/>
-              ))
-            }
-        </SliderWrap>
-        <LeftArrow
-         previousSlide={this.previousSlide}
-        />
-        <RightArrow
-         nextSlide={this.nextSlide}
-        />
-      </Carousel> );
+        }}>
+          {
+            this.state.videos.map((video, i) => (
+              <Slide key={i} video= {video}/>
+            ))
+          }
+        </Container>
+        <Left back={this.previousSlide}/>
+        <Right forward={this.nextSlide}/>
+      </Slider> );
     }
 }
 const Slide = ({ image , video}) => {
 	const styles = {
-		color: "black",
     display: "inline-block",
     width: "100%",
     height: "100%"
@@ -130,18 +118,19 @@ const Slide = ({ image , video}) => {
 		<div className="slide" style={styles}> <ReactPlayer url={video} width="500px"/> </div>
 	);
 }
-const Carousel = styled.div`
+const Slider = styled.div`
   position: relative;
-  width: 800px;
+  max-width: 800px;
   margin: 0 auto;
   padding: 100px;
   overflow: hidden;
   white-space: nowrap;
+  display: flex;
 `
-const SliderWrap = styled.div`
+const Container = styled.div`
   position: relative;
   height: 100%;
-  width: 100%;
+  max-width: 100%;
   margin-left: 150px;
 `
 const Arrow = styled.div`
@@ -153,7 +142,7 @@ const Arrow = styled.div`
   cursor: pointer;
   transition: transform ease-in .1s;
 `
-const LeftArrow = (props) => {
+const Left = (props) => {
   const styles = {
     position: "absolute",
     top: "50%",
@@ -161,12 +150,13 @@ const LeftArrow = (props) => {
     transform: "rotate(135deg)",
     WebkitTransform: "rotate(135deg)"
   };
-  return( <div style={styles}
-    onClick={ props.previousSlide }>
+  return( <div
+    style={styles}
+    onClick={ props.back }>
     <Arrow></Arrow>
     </div>);
 }
-const RightArrow = (props) => {
+const Right = (props) => {
   const styles = {
     position: "absolute",
     top: "50%",
@@ -174,8 +164,9 @@ const RightArrow = (props) => {
     transform: "rotate(-45deg)",
     WebkitTransform: "rotate(-45deg)"
   };
-  return( <div style= {styles}
-    onClick={ props.nextSlide }>
+  return( <div
+    style= {styles}
+    onClick={ props.forward }>
     <Arrow></Arrow>
     </div>);
 }
@@ -184,23 +175,20 @@ class App extends Component {
     return (
       <div>
         <FlexContainer>
-          <Text> <Title> {title1} </Title> {text1}
-          </Text>
+          <Text> <Title> {title1} </Title> {text1} </Text>
           <Image src= {imgs[0]} />
         </FlexContainer>
         <Gradient>
         <FlexContainer2>
           <Image src= {imgs[1]} />
-          <Text> <Title> {title2} </Title> {text1}
-          </Text>
+          <Text> <Title> {title2} </Title> {text1} </Text>
         </FlexContainer2>
         <FlexContainer>
-          <Text> <Title> {title3} </Title> {text1}
-          </Text>
+          <Text> <Title> {title3} </Title> {text1} </Text>
           <Image src= {imgs[2]} />
         </FlexContainer>
         </Gradient>
-        <Slider />
+        <Carousel/>
       </div>
     );
   }
